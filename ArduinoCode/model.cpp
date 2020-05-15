@@ -1,6 +1,5 @@
 // Automatically created from a TensorFlow Lite flatbuffer using the command:
-// xxd -i magic_wand_model.tflite > magic_wand_model_data.cc
-// See the README for a full description of the creation process.
+// xxd -i model.tflite > model.cc
 
 #include "model.h"
 #ifdef __has_attribute

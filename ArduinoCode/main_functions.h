@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef TENSORFLOW_LITE_EXPERIMENTAL_IMEC_INTERNSHIP_FUNCTIONS_H_
-#define TENSORFLOW_LITE_EXPERIMENTAL_IMEC_INTERNSHIP_FUNCTIONS_H_
+#ifndef TENSORFLOW_LITE_MNIST_DEMO_FUNCTIONS_H_
+#define TENSORFLOW_LITE_MNIST_DEMO_FUNCTIONS_H_
 
 // Initializes all data needed for the example. The name is important, and needs
 // to be setup() for Arduino compatibility.

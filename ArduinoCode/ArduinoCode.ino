@@ -11,9 +11,6 @@
 #include <TensorFlowLite.h>
 #include "arduino.h"
 
-#include <Wire.h>
-#include "arduino.h"
-
 #include "model.h"
 #include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"

@@ -27,7 +27,11 @@ union u_float {
   float fval;
 } u;
 
-float float_array[784];
+const size_t float_array_size = 784;
+float float_array[float_array_size];
+
+const size_t byte_array_size = 3136;
+byte byte_array[byte_array_size];
 
 void setup() {
   Serial.begin(250000);
@@ -83,15 +87,20 @@ void setup() {
 }
 void loop() {
   if (Serial.available() > 0) {
-    for (int i = 0; i < 784; i++) {
-      while (!Serial.available()){}
+    
+    size_t data_length = Serial.readBytes(byte_array, byte_array_size);
+
+    Serial.print("Data length: ");
+    Serial.println(data_length);
+    
+    for (int i = 0; i < byte_array_size; i+=4) {
       for (int f = 0; f < 4; f++) {
-        while (!Serial.available()){}
-        u.b[f] = Serial.read();
+        u.b[f] = byte_array[i + f];
       }
       float data_float = u.fval;
-      float_array[i] = data_float;
+      float_array[i / 4] = data_float;
     }
+
 
     input->data.f = float_array;
   

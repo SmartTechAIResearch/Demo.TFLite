@@ -13,13 +13,6 @@ def serial_output():
         except:
             pass
 
-
-def get_digit(img):
-    #img = cv2.imread(name)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    resized = cv2.resize(gray, (28,28), interpolation = cv2.INTER_AREA)
-    return resized
-
 def processed_data(digit):
     data = np.asarray(digit)
     data = data.flatten()
@@ -32,8 +25,7 @@ def processed_data(digit):
     b = bytearray(data, 'utf-8')
     return b
 
-def predict_digit(file):
-    # digit = get_digit(file)
+def predict_digit():
     view = pygame.surfarray.array3d(screen)
     view = view.transpose([1, 0, 2])
     img = cv2.cvtColor(view, cv2.COLOR_BGR2GRAY)
@@ -53,13 +45,12 @@ def roundline(srf, color, start, end, radius=1):
 
 if __name__ == "__main__":
     running = True
-    ser = serial.Serial('com4',256_000, timeout=1)
+    ser = serial.Serial('com4',250_000, timeout=1)
     Thread(target=serial_output).start()
     time.sleep(1)
     print("Initializing pygame")
     print("Press <C> to clear output, <P> to predict what digit it is and <Q> to quit.")
     screen = pygame.display.set_mode((800,800))
-    digitfile =  "digit.jpeg"
 
     draw_on = False
     last_pos = (0, 0)
@@ -78,12 +69,12 @@ if __name__ == "__main__":
                 draw_on = False
             if e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_p:
-                    pygame.image.save(screen,digitfile)
-                    predict_digit(digitfile)
+                    #pygame.image.save(screen,digitfile)
+                    predict_digit()
                 elif e.key == pygame.K_c:
                     screen.fill((0,0,0))
                     pygame.display.update()
-                elif e.key == pygame.K_q or e.key == pygame.K_a:
+                elif e.key == pygame.K_q or e.key == pygame.K_a: #pygame doesn't understand qwerty/azerty ?
                     raise StopIteration
             if e.type == pygame.MOUSEMOTION:
                 if draw_on:

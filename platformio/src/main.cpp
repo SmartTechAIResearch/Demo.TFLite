@@ -5,7 +5,6 @@
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "model.h"
 
-
 // Create a memory pool for the nodes in the network
 constexpr int tensor_pool_size = 16 * 1024;
 uint8_t tensor_pool[tensor_pool_size];
@@ -23,13 +22,9 @@ tflite::ErrorReporter* error_reporter;
 TfLiteTensor* input;
 TfLiteTensor* output;
 
-const size_t byte_array_size = 3136;
-const size_t float_array_size = 784;
+const size_t char_array_size = 3136;
 
-union u_float_array {
-  byte byte_array[byte_array_size];
-  float float_array[float_array_size];
-} u_f;
+char char_array[char_array_size];
 
 void setup() {
   Serial.begin(250000);
@@ -75,12 +70,13 @@ void setup() {
   Serial.printf("  Dim 2 size: %d \n", output->dims->data[1]);
   Serial.printf("  Output type: %d \n", output->type);
 }
+
 void loop() {
   if (Serial.available() > 0) {
-    size_t data_length = Serial.readBytes(u_f.byte_array, byte_array_size);
+    size_t data_length = Serial.readBytes(char_array, char_array_size);
     Serial.printf("Data length: %u \n", data_length);
 
-    input->data.f = u_f.float_array;
+    input->data.raw = char_array;
   
     Serial.println("Processing data");
     TfLiteStatus invoke_status = interpreter->Invoke();

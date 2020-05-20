@@ -5,6 +5,7 @@
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "model.h"
 
+
 // Create a memory pool for the nodes in the network
 constexpr int tensor_pool_size = 16 * 1024;
 uint8_t tensor_pool[tensor_pool_size];
@@ -22,16 +23,13 @@ tflite::ErrorReporter* error_reporter;
 TfLiteTensor* input;
 TfLiteTensor* output;
 
-union u_float {
-  byte b[4];
-  float fval;
-} u;
-
-const size_t float_array_size = 784;
-float float_array[float_array_size];
-
 const size_t byte_array_size = 3136;
-byte byte_array[byte_array_size];
+const size_t float_array_size = 784;
+
+union u_float_array {
+  byte byte_array[byte_array_size];
+  float float_array[float_array_size];
+} u_f;
 
 void setup() {
   Serial.begin(250000);
@@ -79,19 +77,10 @@ void setup() {
 }
 void loop() {
   if (Serial.available() > 0) {
-    size_t data_length = Serial.readBytes(byte_array, byte_array_size);
-
+    size_t data_length = Serial.readBytes(u_f.byte_array, byte_array_size);
     Serial.printf("Data length: %u \n", data_length);
-    
-    for (int i = 0; i < byte_array_size; i += 4) {
-      for (int f = 0; f < 4; f++) {
-        u.b[f] = byte_array[i + f];
-      }
-      float data_float = u.fval;
-      float_array[i / 4] = data_float;
-    }
 
-    input->data.f = float_array;
+    input->data.f = u_f.float_array;
   
     Serial.println("Processing data");
     TfLiteStatus invoke_status = interpreter->Invoke();

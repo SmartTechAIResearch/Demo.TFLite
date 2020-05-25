@@ -6,7 +6,7 @@
 #include "model.h"
 
 // Create a memory pool for the nodes in the network
-constexpr int tensor_pool_size = 16 * 1024;
+constexpr int tensor_pool_size = 10 * 1024;
 uint8_t tensor_pool[tensor_pool_size];
 
 // Define the model to be used

@@ -7,7 +7,9 @@ Next up, you should add the capability to use the ESP32, in order to do this you
 `https://dl.espressif.com/dl/package_esp32_index.json`
 This can be done File -> Preferences -> AdditionalBoards Manager URLs
 ![Boards manager](https://i.imgur.com/KSvrlPE.png)
+
 Now you should be able to find the ESP32 in the list of available boards, Tools -> Board:... -> ESP DEV Module
 ![](https://i.imgur.com/m7tuNUe.png)
+
 Make sure that all the settings under the tab 'tools' are equal to those in the screenshot.
 ![](https://i.imgur.com/G3Tp85O.png)

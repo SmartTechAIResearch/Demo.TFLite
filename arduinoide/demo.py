@@ -4,6 +4,7 @@ import time
 import numpy as np
 import pygame 
 import cv2
+import struct
 
 def serial_output():
     while running:
@@ -30,9 +31,20 @@ def predict_digit():
     view = view.transpose([1, 0, 2])
     img = cv2.cvtColor(view, cv2.COLOR_BGR2GRAY)
     resized = cv2.resize(img, (28,28), interpolation = cv2.INTER_AREA)
-    data = processed_data(resized)
-    print("Sending data....")
-    ser.write(data)
+    data = np.asarray(resized)
+    data_list = list(data.flatten()/255)
+    data_bytes = bytearray()
+
+    for i in range(784):
+        n = data_list[i]
+        n = struct.pack('f', n)
+        for b in n:
+            data_bytes.append(b)
+                    
+     # print(f'Data: {data_bytes}')
+    print(f'Length data sent: {len(data_bytes)}')
+    ser.write(data_bytes)
+    ser.flush()
 
 def roundline(srf, color, start, end, radius=1):
     dx = end[0]-start[0]

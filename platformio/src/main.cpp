@@ -22,16 +22,9 @@ tflite::ErrorReporter* error_reporter;
 TfLiteTensor* input;
 TfLiteTensor* output;
 
-union u_float {
-  byte b[4];
-  float fval;
-} u;
+const size_t char_array_size = 3136;
 
-const size_t float_array_size = 784;
-float float_array[float_array_size];
-
-const size_t byte_array_size = 3136;
-byte byte_array[byte_array_size];
+char char_array[char_array_size];
 
 void setup() {
   Serial.begin(250000);
@@ -65,44 +58,25 @@ void setup() {
   output = interpreter->output(0);
 
   Serial.println("Input");
-  Serial.print("  Number of dimensions: ");
-  Serial.println(input->dims->size);
-  Serial.print("  Dim 1 size: ");
-  Serial.println(input->dims->data[0]);
-  Serial.print("  Dim 2 size: ");
-  Serial.println(input->dims->data[1]);
-  Serial.print("  Input type: ");
-  Serial.println(input->type);
+  Serial.printf("  Number of dimensions: %d \n", input->dims->size);
+  Serial.printf("  Dim 1 size: %d \n", input->dims->data[0]);
+  Serial.printf("  Dim 2 size: %d \n", input->dims->data[1]);
+  Serial.printf("  Input type: %d \n", input->type);
 
 
   Serial.println("Output");
-  Serial.print("  Number of dimensions: ");
-  Serial.println(output->dims->size);
-  Serial.print("  Dim 1 size: ");
-  Serial.println(output->dims->data[0]);
-  Serial.print("  Dim 2 size: ");
-  Serial.println(output->dims->data[1]);
-  Serial.print("  Output type: ");
-  Serial.println(output->type);
+  Serial.printf("  Number of dimensions: %d \n", output->dims->size);
+  Serial.printf("  Dim 1 size: %d \n", output->dims->data[0]);
+  Serial.printf("  Dim 2 size: %d \n", output->dims->data[1]);
+  Serial.printf("  Output type: %d \n", output->type);
 }
+
 void loop() {
   if (Serial.available() > 0) {
-    
-    size_t data_length = Serial.readBytes(byte_array, byte_array_size);
+    size_t data_length = Serial.readBytes(char_array, char_array_size);
+    Serial.printf("Data length: %u \n", data_length);
 
-    Serial.print("Data length: ");
-    Serial.println(data_length);
-    
-    for (int i = 0; i < byte_array_size; i+=4) {
-      for (int f = 0; f < 4; f++) {
-        u.b[f] = byte_array[i + f];
-      }
-      float data_float = u.fval;
-      float_array[i / 4] = data_float;
-    }
-
-
-    input->data.f = float_array;
+    input->data.raw = char_array;
   
     Serial.println("Processing data");
     TfLiteStatus invoke_status = interpreter->Invoke();
@@ -114,10 +88,7 @@ void loop() {
     output = interpreter->output(0);
 
     for (int i = 0; i < 10; i++) {
-      Serial.print("[");
-      Serial.print(i);
-      Serial.print("]: ");
-      Serial.println(output->data.f[i],2);
+      Serial.printf("[%d]: %f \n", i, output->data.f[i]);
     }
   }
 }

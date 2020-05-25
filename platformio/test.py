@@ -40,15 +40,8 @@ def roundline(srf, color, start, end, radius=1):
 
 
 def process_data(data):
-    data = np.asarray(data)
-    data_list = list(data.flatten() / 255)
-    data_bytes = bytearray()
-
-    for i in range(784):
-        n = data_list[i]
-        n = struct.pack('f', n)
-        for b in n:
-            data_bytes.append(b)
+    data = np.asarray(data).flatten() / 355
+    data_bytes = data.astype('f').tostring()
     
     return data_bytes
 

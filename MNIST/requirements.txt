@@ -1,0 +1,4 @@
+# tensorflow_federated
+tensorflow
+tensorflow_model_optimization
+numpy==1.19.3

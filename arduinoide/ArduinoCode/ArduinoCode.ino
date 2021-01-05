@@ -105,7 +105,7 @@ void loop() {
     output = interpreter->output(0);
 
     // const char *labels[] = {"Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"};
-    const char *labels[] = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
+    const char *labels[] = {"A", "B", "D", "E", "F", "G", "H", "N", "Q", "R", "T"};
 
     for (int i = 0; i < output->dims->data[1]; i++) {
       Serial.printf("[%s]: %f \n", labels[i], output->data.f[i]);

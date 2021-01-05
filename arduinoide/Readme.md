@@ -14,14 +14,16 @@ Now you should be able to find the ESP32 in the list of available boards, Tools 
 Make sure that all the settings under the tab 'tools' are equal to those in the screenshot.
 ![](https://i.imgur.com/G3Tp85O.png)
 
+Note: It could be you have to change the **Upload Speed** and the **Port** to another value.
+
 ## The code
-The project contains a few files with the complementary header files, these filles are all comming togheter in the "ArduinoCode". I will be going over every single file explaining what it does and why it's needed.
+The project contains a few files with the complementary header files, these filles are all comming together in the "ArduinoCode". We will be going over every single file explaining what it does and why it's needed.
 
 ### model.* file
-Obviously, in the model files, you can find everything related to the tflite model. These files aren't realy difficult to understand, they contain a C-array that represents the model. On arduino you do have to specify some the allocation of the model, this is done by adding a Data alignment attribute. this attribute will specify how and where the model should be located in memory.
+Obviously, in the model files, you can find everything related to the tflite model. These files aren't really difficult to understand, they contain a C-array that represents the model. On Arduino/ESP32 you do have to specify some the allocation of the model, this is done by adding a Data alignment attribute. This attribute will specify how and where the model should be located in memory.
 
 ### ArduinoCode.ino
-This is the hearth of the project, here everything comes togheter. First of all, we have all the imports that need to be done to get all the tensorflow methods, model files and other...
+This is the heart of the project, here everything comes together. First of all, we have all the imports that need to be done to get all the tensorflow methods, model files and other...
 ``` Arduino
 #include <TensorFlowLite.h>
 #include "arduino.h"
@@ -34,7 +36,8 @@ This is the hearth of the project, here everything comes togheter. First of all,
 #include "tensorflow/lite/version.h"
 ```
 
-In order to use all the Tensorflow operations, I had to create a namespace with preallocated variables. These variables will be used throughout the code and are handeling everything involving the predicting and error reporting process. 
+In order to use all the Tensorflow operations, we have to create a namespace with preallocated variables. These variables will be used throughout the code and are handling everything involving the predicting and error reporting process. 
+
 ``` Arduino
 namespace {
 tflite::ErrorReporter* error_reporter = nullptr;
@@ -51,8 +54,8 @@ uint8_t tensor_arena[kTensorArenaSize];
 ```
 #### Void setup()
 The next step is configuring all the variables in the Void setup().
-This code will try to connect to the sensor using I2C, in case the sensor isn't available or not connected properly it will also print the error. Next, I set up the logging and try to load the model:
-``` Arduion
+This code will try to connect to the sensor using I2C, in case the sensor isn't available or not connected properly it will also print the error. Next, we set up the logging and try to load the model:
+``` Arduino
 static tflite::MicroErrorReporter micro_error_reporter;
   error_reporter = &micro_error_reporter;
 
@@ -67,11 +70,11 @@ static tflite::MicroErrorReporter micro_error_reporter;
     return;
   }
 ```
-After that, I will prepaire the operations resolver to be able to handle all the available ops. It is possible to only select specific ops, however I didn't feel the need to do so since there is no memory restriction.
+After that, we will prepare the operations resolver to be able to handle all the available ops. It is possible to only select specific ops, however we didn't feel the need to do so since there is no memory restriction.
 ``` Arduino
 static tflite::ops::micro::AllOpsResolver resolver;
 ```
-As last step in the setup, I build the interpreter and print more information about the In- and Output. With this information you can quickly verify if it all loaded propperly.
+As last step in the setup, we build the interpreter and print more information about the In- and Output. With this information you can quickly verify if it all loaded propperly.
 ``` Arduino
   // Build an interpreter to run the model with.
   static tflite::MicroInterpreter static_interpreter(
@@ -88,30 +91,20 @@ As last step in the setup, I build the interpreter and print more information ab
   // Obtain pointers to the model's input and output tensors.
   input = interpreter->input(0);
   output = interpreter->output(0);
-
-  Serial.println("Input");
-  Serial.print("Number of dimensions: ");
+  Serial.flush();
+  Serial.end();
+  Serial.begin(250000);
+  
+  Serial.print("Number of Input dimensions: ");
   Serial.println(input->dims->size);
-  Serial.print("Dim 1 size: ");
-  Serial.println(input->dims->data[0]);
-  Serial.print("Dim 2 size: ");
-  Serial.println(input->dims->data[1]);
-  Serial.print("Input type: ");
-  Serial.println(input->type);
+  Serial.printf("Image size: (%d, %d) \n", input->dims->data[1], input->dims->data[2]);
 
-
-  Serial.println("Output");
-  Serial.print("Number of dimensions: ");
+  Serial.print("Number of Output dimensions: ");
   Serial.println(output->dims->size);
-  Serial.print("Dim 1 size: ");
-  Serial.println(output->dims->data[0]);
-  Serial.print("Dim 2 size: ");
-  Serial.println(output->dims->data[1]);
-  Serial.print("Input type: ");
-  Serial.println(output->type);
+  Serial.printf("Output size: (%d, %d) \n", output->dims->data[0], output->dims->data[1]);
 ```
 #### Void loop()
-As some say, this is where the magic happens, however it's just some code. The following code will only be executed when the serial port recieves an input. It will save the byte array it recieves, once the complete array is recieved continue to input the data so the interpreter can invoke and return the prediction.
+The following code will only be executed when the serial port recieves an input. It will save the byte array it receives, once the complete array is received it will send the data to the interpreter to invoke and return the classifications / predictions.
 ``` Arduino
   if (Serial.available() > 0) {
     size_t data_length = Serial.readBytes(char_array, char_array_size);
@@ -126,17 +119,21 @@ As some say, this is where the magic happens, however it's just some code. The f
       return;
     }
 
-    output = interpreter->output(0);
+    // mnist labels
+    const char *labels[] = {"Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"};
 
-    for (int i = 0; i < 10; i++) {
-      Serial.printf("[%d]: %f \n", i, output->data.f[i]);
+    // emnist labels
+    // const char *labels[] = {"A", "B", "D", "E", "F", "G", "H", "N", "Q", "R", "T"};
+
+    for (int i = 0; i < output->dims->data[1]; i++) {
+      Serial.printf("[%s]: %f \n", labels[i], output->data.f[i]);
     }
   }
 
 ```
 
-### The python demo code
-This code is created to interact with the ESP32, the ESP is set up to receive a bytearray that contains a 28x28 represenatation of a created digit. In order to implement the possibility to make the digit, we used pygame. With pygame you can create various projects, however sortoff created paint.
+### The Pygame
+This code is created to interact with the ESP32, the ESP is set up to receive a bytearray that contains a 28x28 represenatation of a created digit. In order to implement the possibility to make the digit, we used Pygame. With Pygame you can create various projects, like this custom made "paint".
 
 The code conosists out of a few parts, first of all the imports: 
 ``` python
@@ -158,7 +155,7 @@ def serial_output():
         except:
             pass
 ```
-In order to be able to send the digits to the ESP, we have to convert it to a bytearray, this is done using the following function. This function will retreave the drawing of a digit from the pygame screen.
+In order to be able to send the digits to the ESP, we have to convert it to a bytearray, this is done using the following function. This function will retrieve the drawing of a digit from the Pygame screen.
  ``` python
 def predict_digit():
     view = pygame.surfarray.array3d(screen)
@@ -182,35 +179,40 @@ def predict_digit():
 ```
 The Pygame itself runs in a single while loop, it basicly awaits input events in order to do something. the following input events are implemented:
 - MouseDown -> user is able to draw
-- Q (or A) -> the progam is shut down
+- Q -> the progam is shut down
 - C -> clears drawing board
-- p -> predicts the drawn digit
+- S | RETURN (ENTER) -> predicts the drawn digit
 
 ```python
-while True:
-    e = pygame.event.wait()
-    if e.type == pygame.QUIT:
-        raise StopIteration
-    if e.type == pygame.MOUSEBUTTONDOWN:
-        pygame.draw.circle(screen, color, e.pos, radius)
-        draw_on = True
-    if e.type == pygame.MOUSEBUTTONUP:
-        draw_on = False
-    if e.type == pygame.KEYDOWN:
-        if e.key == pygame.K_p:
-            #pygame.image.save(screen,digitfile)
-            predict_digit()
-        elif e.key == pygame.K_c:
-            screen.fill((0,0,0))
-            pygame.display.update()
-        elif e.key == pygame.K_q or e.key == pygame.K_a: #pygame doesn't understand qwerty/azerty ?
+    while True:
+        e = pygame.event.wait()
+        if e.type == pygame.QUIT:
             raise StopIteration
-    if e.type == pygame.MOUSEMOTION:
-        if draw_on:
+        elif e.type == pygame.MOUSEBUTTONDOWN:
             pygame.draw.circle(screen, color, e.pos, radius)
-            roundline(screen, color, e.pos, last_pos,  radius)
-        last_pos = e.pos
-    pygame.display.flip()
+            draw_on = True
+        elif e.type == pygame.MOUSEBUTTONUP:
+            draw_on = False
+        elif e.type == pygame.MOUSEMOTION:
+            if draw_on:
+                pygame.draw.circle(screen, color, e.pos, radius)
+                roundline(screen, color, e.pos, last_pos,  radius)
+            last_pos = e.pos
+        elif e.type == pygame.KEYUP:
+            if e.key == pygame.K_c:
+                screen.fill((0,0,0))
+            elif e.key == pygame.K_s or e.key == pygame.K_RETURN:
+                view = pygame.surfarray.array3d(screen)
+                view = view.transpose([1, 0, 2])
+                gray = cv2.cvtColor(view, cv2.COLOR_BGR2GRAY)
+                resized = cv2.resize(gray, (28,28), interpolation=cv2.INTER_AREA)
+                
+                data = process_data(resized)
+                send_data(ser, data)
+                
+            elif e.key == pygame.K_q:
+                raise StopIteration
+        pygame.display.flip()
 ```
 
 

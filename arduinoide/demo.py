@@ -5,9 +5,17 @@ import serial
 from threading import Thread
 import struct
 import io
+import argparse
+
+parser = argparse.ArgumentParser(description='Demo code for the MNIST TFLite workshop.')
+
+parser.add_argument('--com', type=int, help="COM Port of the ESP32", dest='com')
+
+args = parser.parse_args()
 
 # Serial
-port = '/dev/ttyUSB0'
+# port = '/dev/ttyUSB0' # For linux
+port = "COM" + str(args.com) # For Windows
 baud_rate = 250000
 
 # Pygame
@@ -41,7 +49,7 @@ def roundline(srf, color, start, end, radius=1):
 
 def process_data(data):
     data = np.asarray(data).flatten() / 355
-    data_bytes = data.astype('f').tostring()
+    data_bytes = data.astype('f').tobytes()
     
     return data_bytes
 
@@ -59,7 +67,7 @@ def main():
     screen = pygame.display.set_mode(resolution)
 
     # Initiate serial connection
-    ser = serial.Serial('com4',250_000, timeout=1)
+    ser = serial.Serial(port, baud_rate, timeout=1)
 
     # Start reading incomming serial messages
     Thread(target=read_esp, args=(ser,)).start()

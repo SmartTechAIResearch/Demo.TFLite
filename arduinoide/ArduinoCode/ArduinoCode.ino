@@ -79,26 +79,13 @@ void setup() {
   Serial.end();
   Serial.begin(250000);
   
-  Serial.println("kwek");
-  Serial.println("Input");
-  Serial.print("Number of dimensions: ");
+  Serial.print("Number of Input dimensions: ");
   Serial.println(input->dims->size);
-  Serial.print("Dim 1 size: ");
-  Serial.println(input->dims->data[0]);
-  Serial.print("Dim 2 size: ");
-  Serial.println(input->dims->data[1]);
-  Serial.print("Input type: ");
-  Serial.println(input->type);
+  Serial.printf("Image size: (%d, %d) \n", input->dims->data[1], input->dims->data[2]);
 
-  Serial.println("Output");
-  Serial.print("Number of dimensions: ");
+  Serial.print("Number of Output dimensions: ");
   Serial.println(output->dims->size);
-  Serial.print("Dim 1 size: ");
-  Serial.println(output->dims->data[0]);
-  Serial.print("Dim 2 size: ");
-  Serial.println(output->dims->data[1]);
-  Serial.print("Input type: ");
-  Serial.println(output->type);
+  Serial.printf("Output size: (%d, %d) \n", output->dims->data[0], output->dims->data[1]);
 }
 
 void loop() {
@@ -117,8 +104,11 @@ void loop() {
 
     output = interpreter->output(0);
 
-    for (int i = 0; i < 10; i++) {
-      Serial.printf("[%d]: %f \n", i, output->data.f[i]);
+    // const char *labels[] = {"Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"};
+    const char *labels[] = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
+
+    for (int i = 0; i < output->dims->data[1]; i++) {
+      Serial.printf("[%s]: %f \n", labels[i], output->data.f[i]);
     }
   }
 }

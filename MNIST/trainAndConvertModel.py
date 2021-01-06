@@ -3,6 +3,15 @@ import datetime
 import os
 import pandas as pd
 import numpy as np
+sys
+
+import argparse
+
+parser = argparse.ArgumentParser(description='Demo code for the MNIST TFLite workshop.')
+
+parser.add_argument('--data', type=str, help="The data you want to use, either 'mnist' or 'emnist'", dest='data', default='mnist')
+
+args = parser.parse_args()
 
 
 def load_mnist(path, kind='train'):
@@ -19,7 +28,8 @@ def load_mnist(path, kind='train'):
 
 # load and preprocess data
 
-dataset = 'mnist' # or 'emnist'
+# dataset = 'emnist' # or 'emnist'
+dataset = args.data
 output_layers = 10 # default, will be overridden
 
 IMAGE_SHAPE = (28, 28, 1)
@@ -97,7 +107,10 @@ elif dataset == 'emnist':
 
     x_test = np.asarray(x_test)
     x_test = np.apply_along_axis(rotate, 1, x_test)
-
+else:
+    print("You have chosen an invalid dataset.")
+    print("Exitting now")
+    sys.exit(0)
 
 
 
@@ -152,7 +165,7 @@ history = model.fit(
       verbose=2)
 
 # Save the resulted model
-model.save(dataset + "-model_augm.h5")
+model.save(dataset + "-model.h5")
 
 #-------------------------------------------------------------------
 # or quantize aware training to directly convert it to a tflite model

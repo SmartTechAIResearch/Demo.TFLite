@@ -4,3 +4,4 @@
 !**/mnist-model*.h5
 **/*.cc
 .ipynb_checkpoints
+**/~$*.ppt*

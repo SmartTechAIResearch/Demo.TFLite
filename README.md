@@ -15,5 +15,5 @@ The content is seperated in 3 main folders.
 - `platformIO` contains code specific for PlatformIO, which would allow to upload Arduino code through Visual Studio Code.
 
 ## Converting TFLite models to C-Arrays
-Read more on this in the [`MNIST > README`](https://github.com/sizingservers/Demo.TFLite/tree/master/MNIST/Readme.md) file on the different ways to convert TFLite models to C-Arrays.
+Read more on this in the [`MNIST > README`](https://github.com/sizingservers/Demo.TFLite/blob/master/MNIST/README.md) file on the different ways to convert TFLite models to C-Arrays.
 In short: Use either Linux, or a Docker container.
